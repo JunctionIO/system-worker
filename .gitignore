@@ -1,0 +1,10 @@
+# Binary
+/system-worker
+
+# Environment
+.env
+
+# devenv
+.devenv/
+.devenv.flake.nix
+devenv.lock
