@@ -1,0 +1,48 @@
+name: Publish
+
+on:
+  push:
+    tags:
+      - '[0-9]*'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Build binary
+        run: go build -ldflags="-s -w" -o worker .
+
+      - uses: cachix/install-nix-action@v27
+        with:
+          github_access_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: cachix/cachix-action@v15
+        with:
+          name: devenv
+
+      - run: nix profile install nixpkgs#devenv
+
+      - name: Build container
+        run: devenv container build system-worker
+
+      - name: Log in to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Push image
+        run: |
+          VERSION="${{ github.ref_name }}"
+          docker tag system-worker ghcr.io/junctionio/system-worker:${VERSION}
+          docker tag system-worker ghcr.io/junctionio/system-worker:latest
+          docker push ghcr.io/junctionio/system-worker:${VERSION}
+          docker push ghcr.io/junctionio/system-worker:latest
