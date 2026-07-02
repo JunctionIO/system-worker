@@ -6,6 +6,7 @@
 
   containers.system-worker = {
     name = "system-worker";
+    registry = "docker://ghcr.io/junctionio/";
     entrypoint = [ "/bin/worker" ];
     copyToRoot = pkgs.buildEnv {
       name = "system-worker-root";
