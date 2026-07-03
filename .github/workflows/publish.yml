@@ -21,7 +21,12 @@ jobs:
           go-version-file: go.mod
 
       - name: Build binary
-        run: go build -ldflags="-s -w" -o worker .
+        # CGO_ENABLED=0: without this, go builds a dynamically-linked
+        # binary whose ELF interpreter (/lib64/ld-linux-x86-64.so.2)
+        # doesn't exist in the nix-built container image, so the
+        # container fails to start with a misleading "no such file or
+        # directory" / "required file not found" error on the entrypoint.
+        run: CGO_ENABLED=0 go build -ldflags="-s -w" -o worker .
 
       - uses: cachix/install-nix-action@v27
         with:

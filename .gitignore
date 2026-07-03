@@ -1,5 +1,6 @@
 # Binary
 /system-worker
+/worker
 
 # Environment
 .env

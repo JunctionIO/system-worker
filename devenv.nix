@@ -7,7 +7,9 @@
   containers.system-worker = {
     name = "system-worker";
     registry = "docker://ghcr.io/junctionio/";
-    entrypoint = [ "/bin/worker" ];
+    # devenv's containers.<name>.copyToRoot lands under /env (the
+    # container's homeDir/workingDir), not container root.
+    entrypoint = [ "/env/bin/worker" ];
     copyToRoot = pkgs.buildEnv {
       name = "system-worker-root";
       paths = [
